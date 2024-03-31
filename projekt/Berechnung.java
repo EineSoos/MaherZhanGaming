@@ -1,3 +1,3 @@
-public class Berechnung {
+public class Berechnung extends Automat {
     
 }
