@@ -1,75 +1,81 @@
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 public class Automat {
-    
-    private String[] produkte = new String[5];
-    private double[] preis = new double[5];
-    private int[] menge = new int[5];
+    private Map<Produkt, Integer> produkt;
+    private double kontostand;
+    private Produkt gewaehlteProdukt;
 
-    public void setProdukte(String[] produkte) {
-        this.produkte = produkte;
+    public Automat() {
+        /*
+         * beim erzeugen vom Automat Kontostand auf 0 und produkte werden durch die
+         * Hashmap eingesetzt
+         */
+        produkt = new HashMap<>();
+        kontostand = 0;
+
     }
 
-    public String[] getProdukte() {
-        int zahl = 1;
-        for (int i = 0; i < produkte.length; i++) {
-            System.out.print(zahl + ". " + produkte[i] + "    ");
-            zahl++;
+    public void produkteHinzufuegen(Produkt produkt, int menge) {
+        // fals der produkt schon gegeben ist die neue menge wird addiert mit die alte
+        if (this.produkt.containsKey(produkt)) {
+            this.produkt.put(produkt, this.produkt.get(produkt) + menge);
+
+        } else {
+            // sonst wird der produkt als neue Produkt zum Automat hinzugefügt
+            this.produkt.put(produkt, menge);
         }
-        return produkte;
     }
 
-    public double[] getPreis() {
-        return preis;
+    public void geldEingeben(double muenzenEingeben) {
+        // das Geld was man eingibt wird in die aktuellen Kontostand gespeichert
+        kontostand += muenzenEingeben;
     }
 
-    public void setPreis(double[] preis) {
-        this.preis = preis;
-    }
-
-    public int[] getMenge() {
-        return menge;
-    }
-
-    public void setMenge(int[] menge) {
-        this.menge = menge;
-    }
-
-    public void displayProdukte() {
-        getProdukte();
-    }
-
-    // funktion die der produkt mit der preis zeigt wenn man wählt
-    public void produktGewaehlt(int wahl) {
-        switch (wahl) {
-            case 1:
-                System.out.println(
-                        "Sie haben " + produkte[0] + " gewählt \n" + produkte[0] + " kostet: " + preis[0] + "0 EUR");
-
-                break;
-
-            case 2:
-                System.out.println(
-                        "Sie haben " + produkte[1] + " gewählt \n" + produkte[1] + " kostet: " + preis[1] + " EUR");
-                break;
-
-            case 3:
-                System.out.println(
-                        "Sie haben " + produkte[2] + " gewählt \n" + produkte[2] + " kostet: " + preis[2] + " EUR");
-                break;
-
-            case 4:
-                System.out.println(
-                        "Sie haben " + produkte[3] + " gewählt \n" + produkte[3] + " kostet: " + preis[3] + " EUR");
-                break;
-
-            case 5:
-                System.out.println(
-                        "Sie haben " + produkte[4] + " gewählt \n" + produkte[4] + " kostet: " + preis[4] + " EUR");
-                break;
-
-            default:
-                System.out.println("Falsche Eingabe");
-                break;
+    public void produktWaehlen(Produkt produkt) {
+        // Nachdem man den Produkt gewählt hat wirds geprüft ob das eingegebenes Geld
+        // passend ist mit dem Produkts Preis
+        if (kontostand >= produkt.getPreis()) {
+            // Wenn es passend ist wird die Preis vom Produkt aus kontostand gezogen
+            kontostand -= produkt.getPreis();
+            // produkt wird abgegeben
+            produktAbgeben(produkt);
+        } else {
+            // Sonst kommt ein Nachricht, dass man mehr Geld eingeben muss
+            System.out.println("Bitte geben Sie mehr Geld ein");
         }
+        // das gewählte Produkt wird dann in gewaehlteProdukt gespeichert für spätere
+        // Nutzung
+        gewaehlteProdukt = produkt;
+    }
+
+    private void produktAbgeben(Produkt produkt) {
+        int uebrigeMenge = 0;
+        // Wenn der Produkt abegeben wird, wird die alte menge - 1 in die uebrigeMenge
+        // gespeichert
+        uebrigeMenge = this.produkt.get(gewaehlteProdukt) - 1;
+        // dann wird die überige Menge als neue Menge gesetzt für den Produkt
+        this.produkt.put(gewaehlteProdukt, uebrigeMenge);
+        // ein Nachricht die nach der Bestellung kommt
+        System.out.println(produkt.getName() + "wird abgegeben");
+
+    }
+
+    public double rueckGeld() {
+        double rueckGeld = kontostand;
+        // Nach der Rechnung von Kontostand - der Preis vom Produkt, der rest wird in
+        // rueckGeld gespeichert und kontostand wird wieder auf 0 gesetzt
+        kontostand = 0;
+        // Rückgabe vom überiges Geld
+        return rueckGeld;
+
+    }
+
+    public Map<Produkt, Integer> getProduktListe() {
+        // Alle Produkte mit die Menge werden zurück gegeben
+        return produkt;
     }
 
 }
