@@ -1,5 +1,3 @@
-package projekt;
-
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -8,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -54,11 +53,19 @@ public class GUI extends JFrame implements ActionListener {
     // Unvollständiger Arbeit
     @Override
     public void actionPerformed(ActionEvent e) {
+        // fals man auf geldEingebenButton druckt wird +1 zum kontostand hinzugefügt
         if (e.getSource() == geldEingebeButton) {
             automat.geldEingeben(1);
             kontostandAktualisieren();
         } else if (e.getSource() == produktwaehlenButton) {
 
+        }
+        // sonst wenn man auf geldZurueckgebenButton druckt dann kommt ein Nachricht mit
+        // der restlichen geld
+        else if (e.getSource() == geldZurueckgebenButton) {
+            double rest = automat.rueckGeld();
+            JOptionPane.showMessageDialog(this, "Rückgabe Geld ist: " + rest + "€");
+            kontostandAktualisieren();
         }
     }
 
@@ -66,12 +73,15 @@ public class GUI extends JFrame implements ActionListener {
 
     }
 
+    // liefert den aktuellen Kontostand zurück
     private void kontostandAktualisieren() {
+        kontostandLabel.setText("Aktuelle Kontostand: €" + automat.getKontostand());
 
     }
 
     public static void main(String[] args) {
         Automat automat = new Automat();
+        automat.produkteHinzufuegen(new Produkt("Cola", 1.30), 10);
         GUI gui = new GUI(automat);
     }
 
