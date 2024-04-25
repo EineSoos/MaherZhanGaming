@@ -1,3 +1,5 @@
+package projekt;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -5,7 +7,7 @@ import java.util.Set;
 
 public class Automat {
     private Map<Produkt, Integer> produkt;
-    private double kontostand;
+    private float kontostand;
     private Produkt gewaehlteProdukt;
 
     public Automat() {
@@ -29,17 +31,20 @@ public class Automat {
         }
     }
 
-    public void geldEingeben(double muenzenEingeben) {
+    public void geldEingeben(float muenzenEingeben) {
         // das Geld was man eingibt wird in die aktuellen Kontostand gespeichert
         kontostand += muenzenEingeben;
     }
 
     public void produktWaehlen(Produkt produkt) {
+        gewaehlteProdukt = produkt;
         // Nachdem man den Produkt gewählt hat wirds geprüft ob das eingegebenes Geld
         // passend ist mit dem Produkts Preis
         if (kontostand >= produkt.getPreis()) {
             // Wenn es passend ist wird die Preis vom Produkt aus kontostand gezogen
             kontostand -= produkt.getPreis();
+
+            
             // produkt wird abgegeben
             produktAbgeben(produkt);
         } else {
@@ -48,7 +53,7 @@ public class Automat {
         }
         // das gewählte Produkt wird dann in gewaehlteProdukt gespeichert für spätere
         // Nutzung
-        gewaehlteProdukt = produkt;
+        
     }
 
     private void produktAbgeben(Produkt produkt) {
@@ -58,8 +63,8 @@ public class Automat {
         uebrigeMenge = this.produkt.get(gewaehlteProdukt) - 1;
         // dann wird die überige Menge als neue Menge gesetzt für den Produkt
         this.produkt.put(gewaehlteProdukt, uebrigeMenge);
-        // ein Nachricht die nach der Bestellung kommt
-        System.out.println(produkt.getName() + "wird abgegeben");
+        
+
 
     }
 
@@ -76,6 +81,11 @@ public class Automat {
     public Map<Produkt, Integer> getProduktListe() {
         // Alle Produkte mit die Menge werden zurück gegeben
         return produkt;
+    }
+
+    // Aktuelle Kontostand zurück geben
+    public double getKontostand() {
+        return kontostand;
     }
 
 }

@@ -1,10 +1,16 @@
+package projekt;
+
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +33,8 @@ public class GUI extends JFrame implements ActionListener {
         // Aufbau vom GUI
 
         setTitle("Getränke Automat");// Titel schreiben
+        ImageIcon imageIcon = new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\Getränkeautomat02.jpg");
+        this.setIconImage(imageIcon.getImage());
         setSize(1200, 900); // größe ändern
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Wenn man das Fenster abschließt soll der Program brechen
         setLayout(new BorderLayout()); // Erstellung von einem Border
@@ -38,6 +46,13 @@ public class GUI extends JFrame implements ActionListener {
         add(kontostandLabel, BorderLayout.NORTH); // zu GUI hinzufügen mit einem bestimmten layout
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3)); // ein Bereich für die Tasten erstellen
 
+        JPanel bilderPanel = new JPanel(new GridLayout(1, 2, 2, 2));
+        bilderPanel.add(bilderButtonErstellen("cola.png"));
+        bilderPanel.add(bilderButtonErstellen("fanta.png"));
+        bilderPanel.add(bilderButtonErstellen("sprite.png"));
+        bilderPanel.add(bilderButtonErstellen("redbull.png"));
+        add(bilderPanel);        
+
         // Erstellung vom Tasten mit die funktionalität wenn man darauf druckt
         geldEingebeButton = new JButton("Münzen Eingeben");
         geldEingebeButton.addActionListener(this);
@@ -48,7 +63,7 @@ public class GUI extends JFrame implements ActionListener {
         geldZurueckgebenButton = new JButton("Rest zurückgeben");
         geldZurueckgebenButton.addActionListener(this);
         buttonPanel.add(geldZurueckgebenButton);
-        getraenkeAusfuellenButton = new JButton("Getränke Ausfüllen");
+        getraenkeAusfuellenButton = new JButton("Getränke nachfüllen");
         getraenkeAusfuellenButton.addActionListener(this);
         buttonPanel.add(getraenkeAusfuellenButton);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -85,8 +100,25 @@ public class GUI extends JFrame implements ActionListener {
                 for (Map.Entry<Produkt, Integer> entry : produktListe.entrySet()) {
                     Produkt produkt = entry.getKey();
                     if (wahl.equalsIgnoreCase(produkt.getName())) {
-                        JOptionPane.showConfirmDialog(this,
-                                produkt.getName() + " kostet " + produkt.getPreis() + "\nwollen Sie das bestellen? ");
+                        int antwort = JOptionPane.showConfirmDialog(this,
+                                produkt.getName() + " kostet " + produkt.getPreis() + "\nWollen Sie das bestellen?",
+                                "Bestellung bestätigen",
+                                JOptionPane.YES_NO_OPTION);
+                        if (antwort == JOptionPane.YES_OPTION) {
+                            if (automat.getKontostand() < produkt.getPreis()) {
+                                JOptionPane.showMessageDialog(this,
+                                        "Bitte geben Sie mehr Geld ein um die Bestellung zu abschließen");
+
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Ihr Produkt wird ausgegeben");
+                                automat.produktWaehlen(produkt);
+                                kontostandAnzeigen();
+                                produktListeAnzeigen();
+                            }
+
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Bestellung abgebrochen");
+                        }
 
                     }
 
@@ -116,7 +148,8 @@ public class GUI extends JFrame implements ActionListener {
         for (Map.Entry<Produkt, Integer> entry : produktListe.entrySet()) {
             Produkt produkt = entry.getKey();
             int menge = entry.getValue();
-            sb.append(produkt.getName()).append(": €").append(produkt.getPreis()).append(" (").append(menge)
+            sb.append(produkt.getName()).append(": €").append(produkt.getPreis()).append(" (Aktuelle Menge: ")
+                    .append(menge)
                     .append(")\n");
         }
         produktListTextArea.setText(sb.toString());
@@ -129,6 +162,15 @@ public class GUI extends JFrame implements ActionListener {
 
     }
 
+    private JButton bilderButtonErstellen(String imageName){
+        JButton button = new JButton();
+        ImageIcon icon = new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\" + imageName);
+        button.setIcon(icon);
+        button.setPreferredSize(new Dimension(100, 100));
+
+        return button;
+    }
+
     public static void main(String[] args) {
         Automat automat = new Automat();
         automat.produkteHinzufuegen(new Produkt("Cola", 1.29), 10);
@@ -136,6 +178,7 @@ public class GUI extends JFrame implements ActionListener {
         automat.produkteHinzufuegen(new Produkt("Redbull", 1.49), 10);
         automat.produkteHinzufuegen(new Produkt("Sprite", 1.49), 10);
         automat.produkteHinzufuegen(new Produkt("Pepsi", 1.79), 10);
+        automat.produkteHinzufuegen(new Produkt("Seven up", 1.29), 10);
 
         GUI gui = new GUI(automat);
     }
