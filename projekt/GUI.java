@@ -1,6 +1,7 @@
 package projekt;
 
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,158 +20,80 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.OverlayLayout;
 
 public class GUI extends JFrame implements ActionListener {
     private Automat automat;
-    private JTextArea produktListTextArea;
-    private JLabel kontostandLabel;
-    private JButton geldEingebeButton;
-    private JButton produktwaehlenButton;
-    private JButton geldZurueckgebenButton;
-    private JButton getraenkeAusfuellenButton;
+    JPanel buttonsPanel;
+    
+
 
     public GUI(Automat automat) {
         this.automat = automat;
         // Aufbau vom GUI
 
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        
+        JPanel buttonsPanel = new JPanel(new GridLayout(7, 3, 10, 10));
+        JButton nullButton = new JButton("0");
+        JButton okButton = new JButton("OK");
+        JButton cancelButton = new JButton("Abbrechen");
+        JButton fuenfzigButton = new JButton("0.50€");
+        JButton einButton = new JButton("1.00€");
+        JButton zweiButton = new JButton("2.00€");
+
         setTitle("Getränke Automat");// Titel schreiben
-        ImageIcon imageIcon = new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\Getränkeautomat02.jpg");
+        ImageIcon imageIcon = new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\Getränkeautomat02.jpg");
         this.setIconImage(imageIcon.getImage());
         setSize(1200, 900); // größe ändern
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Wenn man das Fenster abschließt soll der Program brechen
-        setLayout(new BorderLayout()); // Erstellung von einem Border
-        produktListTextArea = new JTextArea(); // Erstellung von einem Bereich wo die produkt liste rein kommen soll
-        produktListTextArea.setEditable(false); // als nicht änderbar setzen
-        add(new JScrollPane(produktListTextArea), BorderLayout.CENTER); // zu GUI hinzufügen
-        kontostandLabel = new JLabel("Aktuelle Kontostand: €" + automat.getKontostand()); // ein Bereich für Kontostand
-                                                                                          // erstellen
-        add(kontostandLabel, BorderLayout.NORTH); // zu GUI hinzufügen mit einem bestimmten layout
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 3)); // ein Bereich für die Tasten erstellen
+        
 
-        JPanel bilderPanel = new JPanel(new GridLayout(1, 2, 2, 2));
-        bilderPanel.add(bilderButtonErstellen("cola.png"));
-        bilderPanel.add(bilderButtonErstellen("fanta.png"));
-        bilderPanel.add(bilderButtonErstellen("sprite.png"));
-        bilderPanel.add(bilderButtonErstellen("redbull.png"));
-        add(bilderPanel);        
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder( 0, 20, 30, 20));
+        JLabel kontoStandLabel = new JLabel("Aktueller Kontostand " + automat.getKontostand() + " €");
+        JLabel leerLabel1 = new JLabel(" ");
+        JLabel leerLabel2 = new JLabel(" ");
 
-        // Erstellung vom Tasten mit die funktionalität wenn man darauf druckt
-        geldEingebeButton = new JButton("Münzen Eingeben");
-        geldEingebeButton.addActionListener(this);
-        buttonPanel.add(geldEingebeButton);
-        produktwaehlenButton = new JButton("Produkt wählen");
-        produktwaehlenButton.addActionListener(this);
-        buttonPanel.add(produktwaehlenButton);
-        geldZurueckgebenButton = new JButton("Rest zurückgeben");
-        geldZurueckgebenButton.addActionListener(this);
-        buttonPanel.add(geldZurueckgebenButton);
-        getraenkeAusfuellenButton = new JButton("Getränke nachfüllen");
-        getraenkeAusfuellenButton.addActionListener(this);
-        buttonPanel.add(getraenkeAusfuellenButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        
+        
+        buttonsPanel.add(leerLabel1);
+        buttonsPanel.add(kontoStandLabel);
+        buttonsPanel.add(leerLabel2);
+
+        for(int i= 1; i<=9; i++){
+            JButton button = new JButton(Integer.toString(i));
+            buttonsPanel.add(button);
+        }
+        
+        
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(nullButton);
+        buttonsPanel.add(cancelButton);
+        buttonsPanel.add(fuenfzigButton);
+        buttonsPanel.add(einButton);
+        buttonsPanel.add(zweiButton);
+        mainPanel.add(buttonsPanel, BorderLayout.EAST);
+        
+        
+        add(mainPanel);
+
+
 
         // Schrift Änderung
         Font font = new Font("KG Happy", Font.LAYOUT_LEFT_TO_RIGHT, 20);
-        produktListTextArea.setFont(font);
 
-        produktListeAnzeigen();
-        kontostandAnzeigen();
         setVisible(true);
     }
 
-    // !!!!! Unvollständiger Arbeit
     @Override
     public void actionPerformed(ActionEvent e) {
-        // fals man auf geldEingebenButton druckt wird +1 zum kontostand hinzugefügt
-        if (e.getSource() == geldEingebeButton) {
-            automat.geldEingeben(1);
-            kontostandAnzeigen();
-        }
-        // fals man auf produkt wählen druckt wird folgendes geprüft
-        else if (e.getSource() == produktwaehlenButton) {
-            Map<Produkt, Integer> produktListe = automat.getProduktListe();
-            // wenn es leer ist wird das ausgegeben
-            if (produktListe.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Es gibt gerade keine Getränke");
-
-            }
-            // sonst wird geprüft wan man eingegeben hat
-            else {
-                String wahl;
-                wahl = JOptionPane.showInputDialog(this, "Bitte wählen Sie ihr Produkt");
-                for (Map.Entry<Produkt, Integer> entry : produktListe.entrySet()) {
-                    Produkt produkt = entry.getKey();
-                    if (wahl.equalsIgnoreCase(produkt.getName())) {
-                        int antwort = JOptionPane.showConfirmDialog(this,
-                                produkt.getName() + " kostet " + produkt.getPreis() + "\nWollen Sie das bestellen?",
-                                "Bestellung bestätigen",
-                                JOptionPane.YES_NO_OPTION);
-                        if (antwort == JOptionPane.YES_OPTION) {
-                            if (automat.getKontostand() < produkt.getPreis()) {
-                                JOptionPane.showMessageDialog(this,
-                                        "Bitte geben Sie mehr Geld ein um die Bestellung zu abschließen");
-
-                            } else {
-                                JOptionPane.showMessageDialog(this, "Ihr Produkt wird ausgegeben");
-                                automat.produktWaehlen(produkt);
-                                kontostandAnzeigen();
-                                produktListeAnzeigen();
-                            }
-
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Bestellung abgebrochen");
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-        // sonst wenn man auf geldZurueckgebenButton druckt dann kommt ein Nachricht mit
-        // der restlichen geld
-        else if (e.getSource() == geldZurueckgebenButton) {
-            double rest = automat.rueckGeld();
-            JOptionPane.showMessageDialog(this, "Rückgabe Geld ist: " + rest + "€");
-            kontostandAnzeigen();
-        }
-
-        else if (e.getSource() == getraenkeAusfuellenButton) {
-
-        }
-    }
-
-    // Produkte anzeigen
-    private void produktListeAnzeigen() {
-        Map<Produkt, Integer> produktListe = automat.getProduktListe();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Produkt Liste: \n");
-        for (Map.Entry<Produkt, Integer> entry : produktListe.entrySet()) {
-            Produkt produkt = entry.getKey();
-            int menge = entry.getValue();
-            sb.append(produkt.getName()).append(": €").append(produkt.getPreis()).append(" (Aktuelle Menge: ")
-                    .append(menge)
-                    .append(")\n");
-        }
-        produktListTextArea.setText(sb.toString());
+       
 
     }
 
-    // liefert den aktuellen Kontostand zurück
-    private void kontostandAnzeigen() {
-        kontostandLabel.setText("Aktuelle Kontostand: €" + automat.getKontostand());
 
-    }
 
-    private JButton bilderButtonErstellen(String imageName){
-        JButton button = new JButton();
-        ImageIcon icon = new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\" + imageName);
-        button.setIcon(icon);
-        button.setPreferredSize(new Dimension(100, 100));
 
-        return button;
-    }
 
     public static void main(String[] args) {
         Automat automat = new Automat();
