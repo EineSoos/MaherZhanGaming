@@ -1,4 +1,4 @@
-package projekt;
+package project;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -25,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingConstants;
 
@@ -41,6 +42,7 @@ public class GUI extends JFrame implements ActionListener {
     private JButton fuenfzigButton;
     private JLabel kontoStandLabel;
     private JLabel textLabel;
+    private JTextField produktNummerField;
 
     public GUI(Automat automat) {
         this.automat = automat;
@@ -63,7 +65,7 @@ public class GUI extends JFrame implements ActionListener {
         getraenkePanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
 
         nullButton = new JButton("0");// einen Button erstellen
-        nullButton.addActionListener(this);// Actionlistener hinzufügen
+        nullButton.addActionListener(new NumPadButtonListener());// Actionlistener hinzufügen
 
         okButton = new JButton("OK");
         okButton.addActionListener(this);
@@ -85,6 +87,9 @@ public class GUI extends JFrame implements ActionListener {
         kontoStandLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(kontoStandLabel);
 
+
+        /***********************Erstellung von die buttons mit zahlen neben und untereinander*****************/
+
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         textLabel = new JLabel("Wählen Sie Ihr Produkt aus", SwingConstants.CENTER);
         textLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -92,9 +97,21 @@ public class GUI extends JFrame implements ActionListener {
 
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
+        // TextField to display the entered product number
+        produktNummerField = new JTextField();
+        produktNummerField.setHorizontalAlignment(JTextField.CENTER);
+        produktNummerField.setEditable(false);
+        produktNummerField.setMaximumSize(new Dimension(100, 30));
+        buttonsPanel.add(produktNummerField);
+
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+
         JPanel numPadPanel = new JPanel(new GridLayout(3, 3, 10, 10));
         for (int i = 1; i <= 9; i++) {
             JButton button = new JButton(Integer.toString(i));
+            button.addActionListener(new NumPadButtonListener());
+
             numPadPanel.add(button);
         }
 
@@ -113,6 +130,8 @@ public class GUI extends JFrame implements ActionListener {
         actionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(actionPanel);
 
+        // hier wird ein section erstellt für die produkte je nach menge die produkte
+        // wirds größer
         for (int i = 1; i <= automat.getProduktListe().size(); i++) {
             JPanel produktPanel = new JPanel(new BorderLayout());
             JLabel bilderLabel = new JLabel(new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + i + ".png"));
@@ -133,6 +152,7 @@ public class GUI extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    /********************** die funktionalität vom buttons ********************/
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == fuenfzigButton) {
@@ -146,16 +166,28 @@ public class GUI extends JFrame implements ActionListener {
             kontostandAktualisieren();
         } else if (e.getSource() == cancelButton) {
             updateTextLabel();
+            produktNummerField.setText("");
             
 
-        } else if(e.getSource()==okButton){
-            updateTextLabelOk();
-            //setEnabled(false) wenn produkte fertig
-            
+        } else if (e.getSource() == okButton) {
+            try {
+                int produktNummer = Integer.parseInt(produktNummerField.getText());
+                if (automat.produktKaufen(produktNummer)) {
+                    kontoStandLabel.setText("Kontostand: €" + String.format("%.2f", automat.getKontostand()));
+                    updateTextLabelOk();
+                } else {
+                    JOptionPane.showMessageDialog(GUI.this, "Nicht genügend Guthaben oder Produkt nicht verfügbar.");
+                }
+            } catch (NumberFormatException ex) {
 
+            }
+            produktNummerField.setText("");
         }
+    };
 
-    }
+        
+
+    
 
     private void kontostandAktualisieren() {
         kontoStandLabel.setText("Aktueller Kontostand " + automat.getKontostand() + " €");
@@ -174,13 +206,14 @@ public class GUI extends JFrame implements ActionListener {
             }
         }).start();
     }
+
     private void updateTextLabelOk() {
         new Thread(() -> {
             try {
                 textLabel.setText("Danke für die Nutzung");
                 Thread.sleep(3000); // Verzögerung von 3 Sekunden
                 textLabel.setText("Das Getränk wird  ausgeben");
-                Thread.sleep(5000); 
+                Thread.sleep(5000);
                 textLabel.setText("Wählen Sie Ihr Produkt aus");
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -188,19 +221,26 @@ public class GUI extends JFrame implements ActionListener {
         }).start();
     }
 
-
+    // ActionListener class for numeric buttons
+    private class NumPadButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String buttonText = ((JButton) e.getSource()).getText();
+            produktNummerField.setText(produktNummerField.getText() + buttonText);
+        }
+    }
 
     public static void main(String[] args) {
         Automat automat = new Automat();
-        automat.produkteHinzufuegen(new Produkt("Redbull", 1.49), 10);
-        automat.produkteHinzufuegen(new Produkt("Limonadensaft", 1.19), 10);
-        automat.produkteHinzufuegen(new Produkt("Apfelsaft", 1.29), 10);
-        automat.produkteHinzufuegen(new Produkt("Wasser", 0.99), 10);
-        automat.produkteHinzufuegen(new Produkt("Cola", 1.29), 10);
-        automat.produkteHinzufuegen(new Produkt("Fanta", 1.39), 10);
-        automat.produkteHinzufuegen(new Produkt("Sprite", 1.49), 10);
-        automat.produkteHinzufuegen(new Produkt("Pepsi", 1.79), 10);
-        automat.produkteHinzufuegen(new Produkt("Seven up", 1.29), 10);
+        automat.produkteHinzufuegen(new Produkt("Redbull", 1.49, 1), 10);
+        automat.produkteHinzufuegen(new Produkt("Limonadensaft", 1.19, 2 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Apfelsaft", 1.29, 3 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Wasser", 0.99, 4 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Cola", 1.29, 5 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Fanta", 1.39, 6 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Sprite", 1.49, 7 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Pepsi", 1.79, 8 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Seven up", 1.29, 9 + (int)(Math.random() * 9)), 10);
 
         GUI gui = new GUI(automat);
     }

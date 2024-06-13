@@ -1,4 +1,4 @@
-package projekt;
+package project;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,81 +6,59 @@ import java.util.Map;
 import java.util.Set;
 
 public class Automat {
-    private Map<Produkt, Integer> produkt;
+    private Map<Produkt, Integer> produkte;
     private float kontostand;
-    private Produkt gewaehlteProdukt;
 
     public Automat() {
         /*
          * beim erzeugen vom Automat Kontostand auf 0 und produkte werden durch die
          * Hashmap eingesetzt
          */
-        produkt = new HashMap<>();
+        produkte = new HashMap<>();
         kontostand = 0;
 
     }
 
     public void produkteHinzufuegen(Produkt produkt, int menge) {
-        // fals der produkt schon gegeben ist die neue menge wird addiert mit die alte
-        if (this.produkt.containsKey(produkt)) {
-            this.produkt.put(produkt, this.produkt.get(produkt) + menge);
+        // fals der produkt schon gegeben ist die neue menge wird addiert mit der alte
+        if (this.produkte.containsKey(produkt)) {
+            this.produkte.put(produkt, this.produkte.get(produkt) + menge);
 
         } else {
             // sonst wird der produkt als neue Produkt zum Automat hinzugefügt
-            this.produkt.put(produkt, menge);
+            this.produkte.put(produkt, menge);
         }
     }
 
-    public void geldEingeben(float muenzenEingeben) {
+    public void geldEingeben(double muenzen) {
         // das Geld was man eingibt wird in die aktuellen Kontostand gespeichert
-        kontostand += muenzenEingeben;
+        kontostand += muenzen;
     }
 
-    public void produktWaehlen(Produkt produkt) {
-        gewaehlteProdukt = produkt;
-        // Nachdem man den Produkt gewählt hat wirds geprüft ob das eingegebenes Geld
-        // passend ist mit dem Produkts Preis
-        if (kontostand >= produkt.getPreis()) {
-            // Wenn es passend ist wird die Preis vom Produkt aus kontostand gezogen
+    public boolean produktKaufen(int produktNummer) {
+        Produkt produkt = getProduktByNummer(produktNummer);
+        if (produkt != null && produkte.get(produkt) > 0 && kontostand >= produkt.getPreis()) {
+            produkte.put(produkt, produkte.get(produkt) - 1);
             kontostand -= produkt.getPreis();
-
-            
-            // produkt wird abgegeben
-            produktAbgeben(produkt);
-        } else {
-            // Sonst kommt ein Nachricht, dass man mehr Geld eingeben muss
-            System.out.println("Bitte geben Sie mehr Geld ein");
+            return true;
         }
-        // das gewählte Produkt wird dann in gewaehlteProdukt gespeichert für spätere
-        // Nutzung
-        
+        return false;
     }
 
-    private void produktAbgeben(Produkt produkt) {
-        int uebrigeMenge = 0;
-        // Wenn der Produkt abegeben wird, wird die alte menge - 1 in die uebrigeMenge
-        // gespeichert
-        uebrigeMenge = this.produkt.get(gewaehlteProdukt) - 1;
-        // dann wird die überige Menge als neue Menge gesetzt für den Produkt
-        this.produkt.put(gewaehlteProdukt, uebrigeMenge);
-        
-
-
+    private Produkt getProduktByNummer(int produktNummer) {
+        for (Produkt p : produkte.keySet()) {
+            if (p.getNummer() == produktNummer) {
+                return p;
+            }
+        }
+        return null;
     }
 
-    public double rueckGeld() {
-        double rueckGeld = kontostand;
-        // Nach der Rechnung von Kontostand - der Preis vom Produkt, der rest wird in
-        // rueckGeld gespeichert und kontostand wird wieder auf 0 gesetzt
-        kontostand = 0;
-        // Rückgabe vom überiges Geld
-        return rueckGeld;
-
-    }
+   
 
     public Map<Produkt, Integer> getProduktListe() {
         // Alle Produkte mit die Menge werden zurück gegeben
-        return produkt;
+        return produkte;
     }
 
     // Aktuelle Kontostand zurück geben

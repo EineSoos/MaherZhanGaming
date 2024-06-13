@@ -1,13 +1,15 @@
-package projekt;
+package project;
 
 public class Produkt {
     private String name;
     private double preis;
+    private int nummer;
 
     // Konstuktur vom produkt bekommt der Name von produkt mit preis
-    public Produkt(String name, double preis) {
+    public Produkt(String name, double preis, int nummer) {
         this.name = name;
         this.preis = preis;
+        this.nummer = nummer;
     }
 
     // Produktsname zurückgeben
@@ -18,6 +20,10 @@ public class Produkt {
     // Produktspreis zurückgeben
     public double getPreis() {
         return preis;
+    }
+
+    public int getNummer(){
+        return nummer;
     }
 
 }
