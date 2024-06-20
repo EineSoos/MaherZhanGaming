@@ -135,7 +135,7 @@ public class GUI extends JFrame implements ActionListener {
         for (int i = 1; i <= automat.getProduktListe().size(); i++) {
             JPanel produktPanel = new JPanel(new BorderLayout());
             JLabel bilderLabel = new JLabel(new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + i + ".png"));
-            JLabel nummerLabel = new JLabel("" + i + (int) (Math.random() * 9) + "\n", SwingConstants.CENTER);
+            JLabel nummerLabel = new JLabel("" + i, SwingConstants.CENTER);
 
             produktPanel.add(bilderLabel, BorderLayout.CENTER);
             produktPanel.add(nummerLabel, BorderLayout.SOUTH);
@@ -173,7 +173,7 @@ public class GUI extends JFrame implements ActionListener {
             try {
                 int produktNummer = Integer.parseInt(produktNummerField.getText());
                 if (automat.produktKaufen(produktNummer)) {
-                    kontoStandLabel.setText("Kontostand: €" + String.format("%.2f", automat.getKontostand()));
+                    kontoStandLabel.setText("Kontostand: " + String.format("%.2f", automat.getKontostand()) + "€");
                     updateTextLabelOk();
                 } else {
                     JOptionPane.showMessageDialog(GUI.this, "Nicht genügend Guthaben oder Produkt nicht verfügbar.");
@@ -191,12 +191,16 @@ public class GUI extends JFrame implements ActionListener {
 
     private void kontostandAktualisieren() {
         kontoStandLabel.setText("Aktueller Kontostand " + automat.getKontostand() + " €");
+        
     }
 
     private void updateTextLabel() {
         new Thread(() -> {
             try {
                 textLabel.setText("Danke für die Nutzung");
+                Thread.sleep(1500);
+                textLabel.setText("Das Rückgabegeld beträgt: "+ String.format("%.2f", automat.rueckgabe()) + "€");
+                kontostandAktualisieren();
                 setEnabled(false);
                 Thread.sleep(3000); // Verzögerung von 3 Sekunden
                 textLabel.setText("Wählen Sie Ihr Produkt aus");
@@ -207,10 +211,16 @@ public class GUI extends JFrame implements ActionListener {
         }).start();
     }
 
+    
+
     private void updateTextLabelOk() {
         new Thread(() -> {
             try {
+                
                 textLabel.setText("Danke für die Nutzung");
+                Thread.sleep(1500);
+                textLabel.setText("Das Rückgabegeld beträgt: "+ String.format("%.2f", automat.rueckgabe()) + "€");
+                kontostandAktualisieren();
                 Thread.sleep(3000); // Verzögerung von 3 Sekunden
                 textLabel.setText("Das Getränk wird  ausgeben");
                 Thread.sleep(5000);
@@ -233,14 +243,14 @@ public class GUI extends JFrame implements ActionListener {
     public static void main(String[] args) {
         Automat automat = new Automat();
         automat.produkteHinzufuegen(new Produkt("Redbull", 1.49, 1), 10);
-        automat.produkteHinzufuegen(new Produkt("Limonadensaft", 1.19, 2 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Apfelsaft", 1.29, 3 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Wasser", 0.99, 4 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Cola", 1.29, 5 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Fanta", 1.39, 6 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Sprite", 1.49, 7 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Pepsi", 1.79, 8 + (int)(Math.random() * 9)), 10);
-        automat.produkteHinzufuegen(new Produkt("Seven up", 1.29, 9 + (int)(Math.random() * 9)), 10);
+        automat.produkteHinzufuegen(new Produkt("Limonadensaft", 1.19, 2), 10);
+        automat.produkteHinzufuegen(new Produkt("Apfelsaft", 1.29, 3), 10);
+        automat.produkteHinzufuegen(new Produkt("Wasser", 0.99, 4), 10);
+        automat.produkteHinzufuegen(new Produkt("Cola", 1.29, 5), 10);
+        automat.produkteHinzufuegen(new Produkt("Fanta", 1.39, 6), 10);
+        automat.produkteHinzufuegen(new Produkt("Sprite", 1.49, 7), 10);
+        automat.produkteHinzufuegen(new Produkt("Pepsi", 1.79, 8), 10);
+        automat.produkteHinzufuegen(new Produkt("Seven up", 1.29, 9), 10);
 
         GUI gui = new GUI(automat);
     }

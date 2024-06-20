@@ -40,10 +40,19 @@ public class Automat {
         if (produkt != null && produkte.get(produkt) > 0 && kontostand >= produkt.getPreis()) {
             produkte.put(produkt, produkte.get(produkt) - 1);
             kontostand -= produkt.getPreis();
+            
             return true;
         }
         return false;
     }
+
+    public double rueckgabe(){
+    	double rueckgabeKontostand = kontostand; 
+        kontostand = 0;   
+        return rueckgabeKontostand;
+    }
+     
+    
 
     private Produkt getProduktByNummer(int produktNummer) {
         for (Produkt p : produkte.keySet()) {
