@@ -35,6 +35,7 @@ public class Automat {
         kontostand += muenzen;
     }
 
+    //Wird aufgerufen um produkt zu kaufen
     public boolean produktKaufen(int produktNummer) {
         Produkt produkt = getProduktByNummer(produktNummer);
         if (produkt != null && produkte.get(produkt) > 0 && kontostand >= produkt.getPreis()) {
@@ -46,14 +47,22 @@ public class Automat {
         return false;
     }
 
+    // Rückgabe von Geld
     public double rueckgabe(){
     	double rueckgabeKontostand = kontostand; 
         kontostand = 0;   
         return rueckgabeKontostand;
     }
-     
-    
 
+    // preise Anzeigen
+    public double preisAnzeigen(int zahl){
+        Produkt produkt = getProduktByNummer(zahl);
+        double preis = produkt.getPreis();
+        return preis;
+    }
+
+     
+    // hilft um an einen Produkt durch seinen Nummer angreifen zu können
     private Produkt getProduktByNummer(int produktNummer) {
         for (Produkt p : produkte.keySet()) {
             if (p.getNummer() == produktNummer) {

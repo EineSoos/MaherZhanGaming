@@ -22,6 +22,7 @@ public class Produkt {
         return preis;
     }
 
+    //ProduktNummer zurückgeben
     public int getNummer(){
         return nummer;
     }

@@ -135,10 +135,12 @@ public class GUI extends JFrame implements ActionListener {
         for (int i = 1; i <= automat.getProduktListe().size(); i++) {
             JPanel produktPanel = new JPanel(new BorderLayout());
             JLabel bilderLabel = new JLabel(new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + i + ".png"));
-            JLabel nummerLabel = new JLabel("" + i, SwingConstants.CENTER);
+            JLabel nummerLabel = new JLabel("Nummer: " + i + "  |    Preis: " + automat.preisAnzeigen(i), SwingConstants.CENTER);
+            JLabel mengeLabel = new JLabel("Menge Übrig: " , SwingConstants.CENTER);
 
             produktPanel.add(bilderLabel, BorderLayout.CENTER);
             produktPanel.add(nummerLabel, BorderLayout.SOUTH);
+            produktPanel.add(mengeLabel, BorderLayout.NORTH);
             getraenkePanel.add(produktPanel);
 
         }
@@ -230,6 +232,8 @@ public class GUI extends JFrame implements ActionListener {
             }
         }).start();
     }
+
+
 
     // ActionListener class for numeric buttons
     private class NumPadButtonListener implements ActionListener {
