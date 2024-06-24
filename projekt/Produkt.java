@@ -1,4 +1,3 @@
-package project;
 
 public class Produkt {
     private String name;
@@ -22,8 +21,8 @@ public class Produkt {
         return preis;
     }
 
-    //ProduktNummer zurückgeben
-    public int getNummer(){
+    // ProduktNummer zurückgeben
+    public int getNummer() {
         return nummer;
     }
 

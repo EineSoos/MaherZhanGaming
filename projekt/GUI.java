@@ -1,4 +1,3 @@
-package project;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -38,6 +37,7 @@ public class GUI extends JFrame implements ActionListener {
     private JButton cancelButton;
     private JButton einButton;
     private JButton zweiButton;
+    private JButton nachfuehlenButton;
     private JPanel getraenkePanel;
     private JButton fuenfzigButton;
     private JLabel kontoStandLabel;
@@ -82,13 +82,17 @@ public class GUI extends JFrame implements ActionListener {
         zweiButton = new JButton("2.00€");
         zweiButton.addActionListener(this);
 
+        nachfuehlenButton = new JButton("Getränke nachfühlen");
+        nachfuehlenButton.addActionListener(this);
+
         kontoStandLabel = new JLabel("", SwingConstants.CENTER);// Erstellung von dem "Kontostand-Text" und die
                                                                 // Zentrierung
         kontoStandLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(kontoStandLabel);
 
-
-        /***********************Erstellung von die buttons mit zahlen neben und untereinander*****************/
+        /***********************
+         * Erstellung von die buttons mit zahlen neben und untereinander
+         *****************/
 
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         textLabel = new JLabel("Wählen Sie Ihr Produkt aus", SwingConstants.CENTER);
@@ -106,7 +110,6 @@ public class GUI extends JFrame implements ActionListener {
 
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-
         JPanel numPadPanel = new JPanel(new GridLayout(3, 3, 10, 10));
         for (int i = 1; i <= 9; i++) {
             JButton button = new JButton(Integer.toString(i));
@@ -118,9 +121,12 @@ public class GUI extends JFrame implements ActionListener {
         numPadPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(numPadPanel);
 
-        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         JPanel actionPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+
+        JPanel nachfuehlenPanel = new JPanel(new GridLayout(1, 1, 10, 10));
+        nachfuehlenPanel.add(nachfuehlenButton);
         actionPanel.add(okButton);
         actionPanel.add(nullButton);
         actionPanel.add(cancelButton);
@@ -130,13 +136,18 @@ public class GUI extends JFrame implements ActionListener {
         actionPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(actionPanel);
 
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        buttonsPanel.add(nachfuehlenPanel);
+
         // hier wird ein section erstellt für die produkte je nach menge die produkte
         // wirds größer
         for (int i = 1; i <= automat.getProduktListe().size(); i++) {
             JPanel produktPanel = new JPanel(new BorderLayout());
             JLabel bilderLabel = new JLabel(new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + i + ".png"));
-            JLabel nummerLabel = new JLabel("Nummer: " + i + "  |    Preis: " + automat.preisAnzeigen(i), SwingConstants.CENTER);
-            JLabel mengeLabel = new JLabel("Menge Übrig: " , SwingConstants.CENTER);
+            JLabel nummerLabel = new JLabel("Nummer: " + i + "  |    Preis: " + automat.preisAnzeigen(i) + "€",
+                    SwingConstants.CENTER);
+            JLabel mengeLabel = new JLabel("Menge Übrig: ", SwingConstants.CENTER);
 
             produktPanel.add(bilderLabel, BorderLayout.CENTER);
             produktPanel.add(nummerLabel, BorderLayout.SOUTH);
@@ -169,7 +180,6 @@ public class GUI extends JFrame implements ActionListener {
         } else if (e.getSource() == cancelButton) {
             updateTextLabel();
             produktNummerField.setText("");
-            
 
         } else if (e.getSource() == okButton) {
             try {
@@ -185,15 +195,20 @@ public class GUI extends JFrame implements ActionListener {
             }
             produktNummerField.setText("");
         }
+
+        else if (e.getSource() == nachfuehlenButton) {
+            String passwort = JOptionPane.showInputDialog("Geben Sie das Passwort ein");
+            if (passwort.equalsIgnoreCase("Betreiber")) {
+
+
+
+            }
+        }
     };
-
-        
-
-    
 
     private void kontostandAktualisieren() {
         kontoStandLabel.setText("Aktueller Kontostand " + automat.getKontostand() + " €");
-        
+
     }
 
     private void updateTextLabel() {
@@ -201,7 +216,7 @@ public class GUI extends JFrame implements ActionListener {
             try {
                 textLabel.setText("Danke für die Nutzung");
                 Thread.sleep(1500);
-                textLabel.setText("Das Rückgabegeld beträgt: "+ String.format("%.2f", automat.rueckgabe()) + "€");
+                textLabel.setText("Das Rückgabegeld beträgt: " + String.format("%.2f", automat.rueckgabe()) + "€");
                 kontostandAktualisieren();
                 setEnabled(false);
                 Thread.sleep(3000); // Verzögerung von 3 Sekunden
@@ -213,15 +228,13 @@ public class GUI extends JFrame implements ActionListener {
         }).start();
     }
 
-    
-
     private void updateTextLabelOk() {
         new Thread(() -> {
             try {
-                
+
                 textLabel.setText("Danke für die Nutzung");
                 Thread.sleep(1500);
-                textLabel.setText("Das Rückgabegeld beträgt: "+ String.format("%.2f", automat.rueckgabe()) + "€");
+                textLabel.setText("Das Rückgabegeld beträgt: " + String.format("%.2f", automat.rueckgabe()) + "€");
                 kontostandAktualisieren();
                 Thread.sleep(3000); // Verzögerung von 3 Sekunden
                 textLabel.setText("Das Getränk wird  ausgeben");
@@ -232,8 +245,6 @@ public class GUI extends JFrame implements ActionListener {
             }
         }).start();
     }
-
-
 
     // ActionListener class for numeric buttons
     private class NumPadButtonListener implements ActionListener {

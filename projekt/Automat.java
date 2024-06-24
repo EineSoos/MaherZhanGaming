@@ -1,13 +1,14 @@
-package project;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+
 public class Automat {
     private Map<Produkt, Integer> produkte;
-    private float kontostand;
+    private double kontostand;
 
     public Automat() {
         /*
@@ -35,33 +36,34 @@ public class Automat {
         kontostand += muenzen;
     }
 
-    //Wird aufgerufen um produkt zu kaufen
+    // Wird aufgerufen um produkt zu kaufen
     public boolean produktKaufen(int produktNummer) {
         Produkt produkt = getProduktByNummer(produktNummer);
         if (produkt != null && produkte.get(produkt) > 0 && kontostand >= produkt.getPreis()) {
             produkte.put(produkt, produkte.get(produkt) - 1);
             kontostand -= produkt.getPreis();
-            
+
             return true;
         }
         return false;
     }
 
     // Rückgabe von Geld
-    public double rueckgabe(){
-    	double rueckgabeKontostand = kontostand; 
-        kontostand = 0;   
+    public double rueckgabe() {
+        double rueckgabeKontostand = kontostand;
+        kontostand = 0;
         return rueckgabeKontostand;
     }
 
     // preise Anzeigen
-    public double preisAnzeigen(int zahl){
+    public double preisAnzeigen(int zahl) {
         Produkt produkt = getProduktByNummer(zahl);
         double preis = produkt.getPreis();
         return preis;
     }
 
-     
+    
+
     // hilft um an einen Produkt durch seinen Nummer angreifen zu können
     private Produkt getProduktByNummer(int produktNummer) {
         for (Produkt p : produkte.keySet()) {
@@ -71,8 +73,6 @@ public class Automat {
         }
         return null;
     }
-
-   
 
     public Map<Produkt, Integer> getProduktListe() {
         // Alle Produkte mit die Menge werden zurück gegeben
