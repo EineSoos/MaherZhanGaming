@@ -1,10 +1,8 @@
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
-import javax.swing.JOptionPane;
 
 public class Automat {
     private Map<Produkt, Integer> produkte;
@@ -18,6 +16,14 @@ public class Automat {
         produkte = new HashMap<>();
         kontostand = 0;
 
+    }
+
+    public void nachfuellen(int produktNummer, int menge) {
+        Produkt produkt = getProduktByNummer(produktNummer);
+        if (produkt != null && menge > 0 && menge <= 10) {
+            int aktuelleMenge = produkte.get(produkt);
+            produkte.put(produkt, Math.min(aktuelleMenge + menge, 10));
+        }
     }
 
     public void produkteHinzufuegen(Produkt produkt, int menge) {
@@ -40,7 +46,8 @@ public class Automat {
     public boolean produktKaufen(int produktNummer) {
         Produkt produkt = getProduktByNummer(produktNummer);
         if (produkt != null && produkte.get(produkt) > 0 && kontostand >= produkt.getPreis()) {
-            produkte.put(produkt, produkte.get(produkt) - 1);
+            int aktuelleMenge = produkte.get(produkt);
+            produkte.put(produkt, aktuelleMenge - 1);
             kontostand -= produkt.getPreis();
 
             return true;
@@ -62,10 +69,19 @@ public class Automat {
         return preis;
     }
 
-    
+    public int getMenge(int zahl){
+        for (Entry<Produkt, Integer> p: produkte.entrySet()){
+            zahl = p.getValue();
+                
+            
+        }
+        return zahl;
+    }
+
+
 
     // hilft um an einen Produkt durch seinen Nummer angreifen zu können
-    private Produkt getProduktByNummer(int produktNummer) {
+    public Produkt getProduktByNummer(int produktNummer) {
         for (Produkt p : produkte.keySet()) {
             if (p.getNummer() == produktNummer) {
                 return p;

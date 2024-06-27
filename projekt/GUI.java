@@ -1,17 +1,12 @@
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,10 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.OverlayLayout;
 import javax.swing.SwingConstants;
 
 public class GUI extends JFrame implements ActionListener {
@@ -37,12 +29,17 @@ public class GUI extends JFrame implements ActionListener {
     private JButton cancelButton;
     private JButton einButton;
     private JButton zweiButton;
-    private JButton nachfuehlenButton;
+    private JButton nachfuellenButton;
     private JPanel getraenkePanel;
     private JButton fuenfzigButton;
     private JLabel kontoStandLabel;
     private JLabel textLabel;
     private JTextField produktNummerField;
+    private boolean isNachfuellModus = false;
+    private Produkt aktuelleNachfuellProdukt;
+    private static final String nachfuelPasswort = "Betreiber";
+    private boolean isProduktNummerEingegeben = false;
+    private int aktuelleProduktNummer;
 
     public GUI(Automat automat) {
         this.automat = automat;
@@ -82,8 +79,8 @@ public class GUI extends JFrame implements ActionListener {
         zweiButton = new JButton("2.00€");
         zweiButton.addActionListener(this);
 
-        nachfuehlenButton = new JButton("Getränke nachfühlen");
-        nachfuehlenButton.addActionListener(this);
+        nachfuellenButton = new JButton("Getränke nachfüllen");
+        nachfuellenButton.addActionListener(this);
 
         kontoStandLabel = new JLabel("", SwingConstants.CENTER);// Erstellung von dem "Kontostand-Text" und die
                                                                 // Zentrierung
@@ -125,8 +122,8 @@ public class GUI extends JFrame implements ActionListener {
 
         JPanel actionPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
-        JPanel nachfuehlenPanel = new JPanel(new GridLayout(1, 1, 10, 10));
-        nachfuehlenPanel.add(nachfuehlenButton);
+        JPanel nachfuellenPanel = new JPanel(new GridLayout(1, 1, 10, 10));
+        nachfuellenPanel.add(nachfuellenButton);
         actionPanel.add(okButton);
         actionPanel.add(nullButton);
         actionPanel.add(cancelButton);
@@ -138,24 +135,12 @@ public class GUI extends JFrame implements ActionListener {
 
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        buttonsPanel.add(nachfuehlenPanel);
+        buttonsPanel.add(nachfuellenPanel);
 
         // hier wird ein section erstellt für die produkte je nach menge die produkte
         // wirds größer
-        for (int i = 1; i <= automat.getProduktListe().size(); i++) {
-            JPanel produktPanel = new JPanel(new BorderLayout());
-            JLabel bilderLabel = new JLabel(new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + i + ".png"));
-            JLabel nummerLabel = new JLabel("Nummer: " + i + "  |    Preis: " + automat.preisAnzeigen(i) + "€",
-                    SwingConstants.CENTER);
-            JLabel mengeLabel = new JLabel("Menge Übrig: ", SwingConstants.CENTER);
 
-            produktPanel.add(bilderLabel, BorderLayout.CENTER);
-            produktPanel.add(nummerLabel, BorderLayout.SOUTH);
-            produktPanel.add(mengeLabel, BorderLayout.NORTH);
-            getraenkePanel.add(produktPanel);
-
-        }
-
+        aktuallisiereGetraenkePanel();
         mainPanel.add(getraenkePanel, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.EAST);
 
@@ -178,33 +163,89 @@ public class GUI extends JFrame implements ActionListener {
             automat.geldEingeben(2);
             kontostandAktualisieren();
         } else if (e.getSource() == cancelButton) {
-            updateTextLabel();
-            produktNummerField.setText("");
+            if (isNachfuellModus) {
+                nachfuellModusDeaktivieren();
+                aktuallisiereGetraenkePanel();
+
+            } else {
+                updateTextLabel();
+                produktNummerField.setText("");
+            }
 
         } else if (e.getSource() == okButton) {
+            if (isNachfuellModus) {
+                handleNachfuellModus();
+
+            } else {
+                try {
+                    int produktNummer = Integer.parseInt(produktNummerField.getText());
+                    if (automat.produktKaufen(produktNummer)) {
+                        automat.getMenge(produktNummer);
+                        kontoStandLabel.setText("Kontostand: " + String.format("%.2f", automat.getKontostand()) + "€");
+                        updateTextLabelOk();
+                        aktuallisiereGetraenkePanel();
+                    } else {
+                        JOptionPane.showMessageDialog(GUI.this,
+                                "Nicht genügend Guthaben oder Produkt nicht verfügbar.");
+                    }
+                } catch (NumberFormatException ex) {
+
+                }
+                produktNummerField.setText("");
+            }
+        }
+
+        else if (e.getSource() == nachfuellenButton) {
+            String passwort = JOptionPane.showInputDialog("Bitte geben Sie das Passwort ein");
+            if (passwort != null && passwort.equalsIgnoreCase(nachfuelPasswort)) {
+                nachfuellModusAktivieren();
+            } else {
+                JOptionPane.showMessageDialog(this, "Falsches Passwort!");
+            }
+        } else if (e.getSource() == okButton && isNachfuellModus == true) {
             try {
-                int produktNummer = Integer.parseInt(produktNummerField.getText());
-                if (automat.produktKaufen(produktNummer)) {
-                    kontoStandLabel.setText("Kontostand: " + String.format("%.2f", automat.getKontostand()) + "€");
-                    updateTextLabelOk();
+                String[] eingaben = produktNummerField.getText().split(" ");
+                int produktNummer = Integer.parseInt(eingaben[0]);
+                int menge = Integer.parseInt(eingaben[1]);
+                automat.nachfuellen(produktNummer, menge);
+                aktuallisiereGetraenkePanel();
+                nachfuellModusDeaktivieren();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Ungültige Eingabe. Bitte Produktnummer und Menge eingeben.");
+            }
+        }
+    }
+
+    private void handleNachfuellModus() {
+        if (!isProduktNummerEingegeben) {
+            try {
+                aktuelleProduktNummer = Integer.parseInt(produktNummerField.getText());
+                if (automat.getProduktByNummer(aktuelleProduktNummer) != null) {
+                    isProduktNummerEingegeben = true;
+                    produktNummerField.setText("");
+                    textLabel.setText("Geben Sie die Menge ein (max. 10)");
                 } else {
-                    JOptionPane.showMessageDialog(GUI.this, "Nicht genügend Guthaben oder Produkt nicht verfügbar.");
+                    JOptionPane.showMessageDialog(this, "Ungültige Produktnummer.");
                 }
             } catch (NumberFormatException ex) {
-
+                JOptionPane.showMessageDialog(this, "Bitte geben Sie eine gültige Nummer ein.");
             }
-            produktNummerField.setText("");
-        }
-
-        else if (e.getSource() == nachfuehlenButton) {
-            String passwort = JOptionPane.showInputDialog("Geben Sie das Passwort ein");
-            if (passwort.equalsIgnoreCase("Betreiber")) {
-
-
-
+        } else {
+            try {
+                int menge = Integer.parseInt(produktNummerField.getText());
+                if (menge > 0 && menge <= 10) {
+                    automat.nachfuellen(aktuelleProduktNummer, menge);
+                    aktuallisiereGetraenkePanel();
+                    JOptionPane.showMessageDialog(this, "Produkt wurde nachgefüllt.");
+                    nachfuellModusDeaktivieren();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Bitte geben Sie eine Menge zwischen 1 und 10 ein.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Bitte geben Sie eine gültige Zahl ein.");
             }
         }
-    };
+    }
 
     private void kontostandAktualisieren() {
         kontoStandLabel.setText("Aktueller Kontostand " + automat.getKontostand() + " €");
@@ -244,6 +285,57 @@ public class GUI extends JFrame implements ActionListener {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private void nachfuellModusAktivieren() {
+        isNachfuellModus = true;
+        isProduktNummerEingegeben = false;
+        textLabel.setText("Nachfüll-Modus aktiviert. Geben Sie die Produktnummer ein");
+        produktNummerField.setText("");
+    }
+
+    private void nachfuellModusDeaktivieren() {
+        isNachfuellModus = false;
+        isProduktNummerEingegeben = false;
+        textLabel.setText("Wählen Sie Ihr Produkt aus");
+        produktNummerField.setText("");
+    }
+
+    private void aktuallisiereGetraenkePanel() {
+        getraenkePanel.removeAll();
+
+        // Erstelle eine TreeMap, die automatisch nach den Schlüsseln (Produktnummern)
+        // sortiert
+        Map<Integer, Map.Entry<Produkt, Integer>> sortedProducts = new TreeMap<>();
+
+        // Fülle die sortierte Map
+        for (Map.Entry<Produkt, Integer> entry : automat.getProduktListe().entrySet()) {
+            Produkt produkt = entry.getKey();
+            sortedProducts.put(produkt.getNummer(), entry);
+        }
+
+        // Iteriere über die sortierte Map
+        for (Map.Entry<Integer, Map.Entry<Produkt, Integer>> sortedEntry : sortedProducts.entrySet()) {
+            Produkt produkt = sortedEntry.getValue().getKey();
+            int menge = sortedEntry.getValue().getValue();
+
+            JPanel produktPanel = new JPanel(new BorderLayout());
+            JLabel bilderLabel = new JLabel(
+                    new ImageIcon("H:\\IT SW 12\\test\\src\\projekt\\bilder\\" + produkt.getNummer() + ".png"));
+            JLabel nummerLabel = new JLabel(
+                    "Nummer: " + produkt.getNummer() + " | Preis: " + produkt.getPreis() + "€",
+                    SwingConstants.CENTER);
+            JLabel mengeLabel = new JLabel("Menge Übrig: " + menge, SwingConstants.CENTER);
+
+            produktPanel.add(bilderLabel, BorderLayout.CENTER);
+            produktPanel.add(nummerLabel, BorderLayout.SOUTH);
+            produktPanel.add(mengeLabel, BorderLayout.NORTH);
+
+            getraenkePanel.add(produktPanel);
+        }
+
+        getraenkePanel.revalidate();
+        getraenkePanel.repaint();
     }
 
     // ActionListener class for numeric buttons
