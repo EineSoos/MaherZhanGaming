@@ -1,0 +1,40 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>60</x><y>20</y><w>320</w><h>250</h></coordinates><panel_attributes>Automat
+--
+- produkt: Map&lt;Produkt, Integer&gt;     
+- kontostand: double                      
+- gewaelteProdukt: Produkt
+--
++Automat()
++produkteHinzufuegen(): void
++geldEingeben(münzen: double): void
++produktWaehlen(produkt: Produkt): void
++produktAbgeben(produkt: Produkt): void
++rueckGeld(): double
++getProduktListe(): Map&lt;Produkt, Integer&gt;
++getKontostand(): double
+
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>810</x><y>10</y><w>370</w><h>250</h></coordinates><panel_attributes>Produkt
+--
+-name: String
+-preis: double
+--
++getName(): String
++getPreis(): double
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>60</x><y>440</y><w>360</w><h>240</h></coordinates><panel_attributes>GUI
+--
+-automat: Automat
+
+
+
+--
++GUI(automat: Automat)
+-produktListeAktualisieren(): void
+-kontostandAktualisieren(): void
++ actionPerformed(event: ActionEvent): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>370</x><y>120</y><w>450</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+m1=1..*</panel_attributes><additional_attributes>430;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>410</x><y>250</y><w>610</w><h>360</h></coordinates><panel_attributes>lt=&lt;-
+m1=1</panel_attributes><additional_attributes>10;330;590;330;590;10</additional_attributes></element><element><id>Relation</id><coordinates><x>210</x><y>260</y><w>40</w><h>200</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;10;180</additional_attributes></element></diagram>
